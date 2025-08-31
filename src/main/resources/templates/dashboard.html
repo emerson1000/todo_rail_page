@@ -84,10 +84,10 @@
            <div class="column high-priority">
                <div class="column-heading">High</div>
                <div class="todo-container">
-                   <div th:if="${#lists.isEmpty(todayTasks.?[priority == 'high'])}">
+                   <div th:if="${#lists.isEmpty(todayTask.?[priority == 'high'])}">
                        <p>Nothing to show here...</p>
                    </div>
-                   <div th:each="task : ${todayTasks}" th:if="${task.priority == 'high'}" class="todo-item">
+                   <div th:each="task : ${todayTask}" th:if="${task.priority == 'high'}" class="todo-item">
                        <div class="task-details">
                            <strong>Name:</strong> <span th:text="${task.title}">Task Title</span>
                            <strong>Desc:</strong> <span th:text="${task.shortDescription}"></span>
@@ -114,10 +114,10 @@
            <div class="column medium-priority">
                <div class="column-heading">Medium</div>
                <div class="todo-container">
-                   <div th:if="${#lists.isEmpty(todayTasks.?[priority == 'medium'])}">
+                   <div th:if="${#lists.isEmpty(todayTask.?[priority == 'medium'])}">
                        <p>Nothing to show here...</p>
                    </div>
-                   <div th:each="task : ${todayTasks}" th:if="${task.priority == 'medium'}" class="todo-item">
+                   <div th:each="task : ${todayTask}" th:if="${task.priority == 'medium'}" class="todo-item">
                        <div class="task-details">
                            <strong>Name:</strong> <span th:text="${task.title}">Task Title</span>
                            <strong>Desc:</strong> <span th:text="${task.shortDescription}"></span>
@@ -144,10 +144,10 @@
            <div class="column low-priority">
                <div class="column-heading">Low</div>
                <div class="todo-container">
-                   <div th:if="${#lists.isEmpty(todayTasks.?[priority == 'low'])}">
+                   <div th:if="${#lists.isEmpty(todayTask.?[priority == 'low'])}">
                        <p>Nothing to show here...</p>
                    </div>
-                   <div th:each="task : ${todayTasks}" th:if="${task.priority == 'low'}" class="todo-item">
+                   <div th:each="task : ${todayTask}" th:if="${task.priority == 'low'}" class="todo-item">
                        <div class="task-details">
                            <strong>Name:</strong> <span th:text="${task.title}">Task Title</span>
                            <strong>Desc:</strong> <span th:text="${task.shortDescription}"></span>

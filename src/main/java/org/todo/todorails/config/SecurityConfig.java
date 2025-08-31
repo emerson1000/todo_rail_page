@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.todo.todorails.service.UserService;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -17,46 +16,40 @@ public class SecurityConfig {
 
     private final UserService userService;
 
-    // Constructor to inject UserService, which we’ll use for loading user details
     public SecurityConfig(UserService userService) {
         this.userService = userService;
     }
 
-    // Create and configure a SecurityFilterChain bean
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests(authorize -> authorize
-                        /** TODO 1:  allow access to static resource "/css/**" and
-                         *           "/register" without logging in
-                         *
-                         */
-                        // allow access to static resources
-                        .requestMatchers("/css/**","/js/**", "/images/**").permitAll()
-                        // allow access to register, login, terms and index without logging in
-                        .requestMatchers("/","/login","/terms", "/custom-error", "/register").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard")
-                        // Redirects the user to the login page
-                        .failureUrl("/login?error")
-                        .permitAll()
-                )
-                .logout(logout -> logout.permitAll());
+        http
+            .csrf(csrf -> csrf.disable()) // 🔧 desactivado para pruebas (lo puedes volver a activar después)
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/terms", "/custom-error", "/test-auth").permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")                // tu login.html
+                .loginProcessingUrl("/login")       // dónde manda el form POST
+                .defaultSuccessUrl("/dashboard", true) // siempre manda a dashboard si login OK
+                .failureUrl("/login?error")         // si falla login
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout")
+                .permitAll()
+            );
 
         return http.build();
     }
 
-
-    // Create a PasswordEncoder bean to encode passwords
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configure the AuthenticationManager to use our UserService and password encoder
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);

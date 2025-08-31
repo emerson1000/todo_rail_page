@@ -9,19 +9,20 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
+@Table(name = "user") // explícito, por claridad
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100) // BCrypt = 60 chars, damos margen
     private String password;
 
-
-    @Column(nullable = false, unique = false)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     private String highestQualification;
@@ -31,16 +32,10 @@ public class User implements UserDetails {
 
     private Boolean termsAccepted = false;
 
-
-    // Overriding methods of UserDetails interface
-
+    // 🔑 Ahora devolvemos siempre un rol por defecto
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Assuming a simple user role future provision
-        // for more complex scenarios, you may want a Role entity
-        // currently returns an empty list
-        // return authorities if roles are added
-        return Collections.emptyList();
+        return Collections.singleton(() -> "ROLE_USER");
     }
 
     @Override
@@ -55,29 +50,25 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        // Fixed values, you can have fields to represent state
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        // Fixed values, you can have fields to represent state
         return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        // Fixed values, you can have fields to represent state
         return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // Fixed values, you can have fields to represent state
         return true;
     }
 
-    // Getters and setters
+    // Getters y setters
 
     public Long getId() {
         return id;
@@ -90,7 +81,6 @@ public class User implements UserDetails {
     public void setUsername(String username) {
         this.username = username;
     }
-
 
     public void setPassword(String password) {
         this.password = password;

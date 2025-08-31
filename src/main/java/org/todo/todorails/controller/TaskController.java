@@ -26,40 +26,61 @@ public class TaskController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        // Fetch tasks due today for the current user
-        List<Task> todayTasks = taskService.getTodayTasksForCurrentUser();
+        try {
+            System.out.println("🔍 DEBUG: Entrando al dashboard...");
+            
+            // Verificar autenticación
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()) {
+                System.out.println("✅ Usuario autenticado: " + auth.getName());
+                System.out.println("🔐 Roles: " + auth.getAuthorities());
+            } else {
+                System.out.println("❌ Usuario NO autenticado");
+            }
+            
+            // Fetch tasks due today for the current user
+            List<Task> todayTasks = taskService.getTodayTasksForCurrentUser();
+            System.out.println("📋 Tareas de hoy obtenidas: " + todayTasks.size());
 
-        /** TODO 13 (a): add the list "todaysTask" object  to the "model"
-                         object with the attribute name "todaysTasks"
-                        using the method "addAttribute".
-         **/
-        model.addAttribute("todayTask",todayTasks);
+            /** TODO 13 (a): add the list "todaysTask" object  to the "model"
+                             object with the attribute name "todaysTasks"
+                            using the method "addAttribute".
+             **/
+            model.addAttribute("todayTask",todayTasks);
 
 
-        // Fetch all tasks for the current user, sorted by due date
-        List<Task> allTasks = taskService.getAllTasksForCurrentUser();
-        sortTasksByDueDate(allTasks);
+            // Fetch all tasks for the current user, sorted by due date
+            List<Task> allTasks = taskService.getAllTasksForCurrentUser();
+            System.out.println("📋 Todas las tareas obtenidas: " + allTasks.size());
+            sortTasksByDueDate(allTasks);
 
-        model.addAttribute("allTasks", allTasks);
+            model.addAttribute("allTasks", allTasks);
 
 
-        LocalDateTime localDateTime = LocalDateTime.now();
-        String formattedDate = DateTimeFormatter.ofPattern("MM/dd/yyyy").format(localDateTime);
-        /** TODO 14: send the "formattedDate" to the client with the attribute name "serverTime"
-         *           in the model
-         **/
-        model.addAttribute("serverTime", formattedDate);
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String formattedDate = DateTimeFormatter.ofPattern("MM/dd/yyyy").format(localDateTime);
+            /** TODO 14: send the "formattedDate" to the client with the attribute name "serverTime"
+             *           in the model
+             **/
+            model.addAttribute("serverTime", formattedDate);
 
-        /** TODO 20 (c): For the value of the attributes:
-         *                i. completedCount - replace 0 with a call to the method countByCompleted
-         *                                    of the taskService with the parameter true.
-         *                ii. pendingCount - replace 0 with a call to the method countByCompleted
-         *                                    of the taskService with the parameter false.
-         **/
-        model.addAttribute("completedCount", taskService.countByCompleted(true));
-        model.addAttribute("pendingCount",taskService.countByCompleted(false));
-
-        return "dashboard";
+            /** TODO 20 (c): For the value of the attributes:
+             *                i. completedCount - replace 0 with a call to the method countByCompleted
+             *                                    of the taskService with the parameter true.
+             *                ii. pendingCount - replace 0 with a call to the method countByCompleted
+             *                                    of the taskService with the parameter false.
+             **/
+            model.addAttribute("completedCount", taskService.countByCompleted(true));
+            model.addAttribute("pendingCount",taskService.countByCompleted(false));
+            
+            System.out.println("✅ Dashboard cargado exitosamente");
+            return "dashboard";
+            
+        } catch (Exception e) {
+            System.err.println("💥 ERROR en dashboard: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-lanzar para que Spring maneje el error
+        }
     }
 
     // Method to sort tasks by due date without lambda

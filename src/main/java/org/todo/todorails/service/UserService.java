@@ -21,22 +21,24 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    /**
+     * Registrar un nuevo usuario
+     */
     public User registerUser(User user) throws Exception {
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new Exception("❌ Username already exists: " + user.getUsername());
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new Exception("❌ Email already exists: " + user.getEmail());
+        }
 
-        // Check if username already exists
-
-            if (userRepository.existsByUsername(user.getUsername())) {
-                throw new Exception("Username already exists");
-            }
-
-        // Encrypt the password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Set terms accepted to true
+        String encoded = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encoded);
         user.setTermsAccepted(true);
 
-        // Save the new user
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        System.out.println("✅ Usuario registrado: " + saved.getUsername() + " / " + saved.getEmail());
+        return saved;
     }
 
     public User findByUsername(String username) {
@@ -51,21 +53,46 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    /**
+     * Método de prueba para verificar contraseñas
+     */
+    public boolean testPassword(String rawPassword, String encodedPassword) {
+        boolean matches = passwordEncoder.matches(rawPassword, encodedPassword);
+        System.out.println("🔐 TEST PASSWORD:");
+        System.out.println("   Raw: " + rawPassword);
+        System.out.println("   Encoded: " + encodedPassword);
+        System.out.println("   Matches: " + matches);
+        return matches;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username);
+        try {
+            System.out.println("🔎 Intentando login con: " + username);
 
-        // Check if user with username exists
-        if (user == null) {
+            User user = findByUsername(username);
 
-            // If username does not exist then check if email is passed
-            user = findByEmail(username);
-
-            // Check if user with email exists
-            if(user == null) {
-                throw new UsernameNotFoundException("User not found with username: " + username);
+            if (user == null) {
+                System.out.println("⚠️ No encontrado por username, probando por email...");
+                user = findByEmail(username);
             }
+
+            if (user == null) {
+                System.out.println("❌ Usuario no encontrado ni por username ni por email: " + username);
+                throw new UsernameNotFoundException("User not found: " + username);
+            }
+
+            System.out.println("✅ Usuario encontrado: " + user.getUsername() + " / " + user.getEmail());
+            System.out.println("🔑 Contraseña encriptada: " + user.getPassword());
+            System.out.println("🔐 Roles: " + user.getAuthorities());
+
+            // Como User ya implementa UserDetails, lo devolvemos directamente
+            return user;
+
+        } catch (Exception e) {
+            System.err.println("💥 ERROR en loadUserByUsername: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
-        return user;
     }
 }

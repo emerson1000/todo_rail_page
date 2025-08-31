@@ -1,5 +1,7 @@
 package org.todo.todorails.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,4 +28,22 @@ public class PageController {
         return "terms";
     }
 
+    // Handler for testing authentication
+    @GetMapping("/test-auth")
+    public String testAuth(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            model.addAttribute("username", auth.getName());
+            model.addAttribute("authorities", auth.getAuthorities());
+            model.addAttribute("authenticated", true);
+            System.out.println("✅ Usuario autenticado: " + auth.getName());
+            System.out.println("🔐 Roles: " + auth.getAuthorities());
+        } else {
+            model.addAttribute("authenticated", false);
+            System.out.println("❌ Usuario NO autenticado");
+        }
+        
+        return "test-auth";
+    }
 }

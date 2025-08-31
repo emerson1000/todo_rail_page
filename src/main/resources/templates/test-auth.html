@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentication - ToDo Rails</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="wrapper">
+    <div class="header">
+        <div class="logo-section">
+            <img th:src="@{/images/logo.png}" alt="ToDo Rails Logo" class="logo">
+            <div class="text-section">
+                <h1>Test Authentication</h1>
+                <p>Verificando estado de autenticación</p>
+            </div>
+        </div>
+        <div class="auth-links">
+            <a th:href="@{/}">Home</a>
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Estado de Autenticación</h2>
+        
+        <div th:if="${authenticated}" class="success-message">
+            <h3>✅ Usuario Autenticado</h3>
+            <p><strong>Username:</strong> <span th:text="${username}"></span></p>
+            <p><strong>Roles:</strong> <span th:text="${authorities}"></span></p>
+            <p>La autenticación está funcionando correctamente.</p>
+        </div>
+        
+        <div th:unless="${authenticated}" class="error-message">
+            <h3>❌ Usuario NO Autenticado</h3>
+            <p>No hay un usuario autenticado en este momento.</p>
+            <p><a th:href="@{/login}">Ir al Login</a></p>
+        </div>
+        
+        <div class="actions">
+            <a th:href="@{/dashboard}" class="btn">Ir al Dashboard</a>
+            <a th:href="@{/}" class="btn">Volver al Home</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</div>
+</body>
+</html>
